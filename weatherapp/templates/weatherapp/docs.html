@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Documentation</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color:rgb(3, 3, 3);
+        }
+        h1, h2 {
+            color:rgb(255, 255, 255);
+        }
+        .section-header {
+            background-color:rgb(0, 0, 0);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .card {
+            background-color: black;
+            color: white;
+            margin-bottom: 20px;
+        }
+        footer {
+            background-color:rgb(12, 12, 12);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            background: black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        nav a {
+            color: #e1e1e1;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        nav a:hover {
+            background: #444;
+            color: #1abc9c;
+            border-radius: 5px;
+        }
+        .nav-link {
+            color: white !important;
+        }
+        .nav-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav>
+        <a href="{% url 'homepage' %}">Home</a>
+        <a href="{% url 'aboutus' %}">About</a>
+        <a href="{% url 'leaflet_map' %}">Geospatial Analysis</a>
+        <a href="{% url 'heatmap' %}">Heat Map</a>
+        <a href="{% url 'flight' %}">Flight Map</a>
+        <a href="{% url 'weather' %}">Weather App</a>
+        <a href="{% url 'docs' %}">Technical Document</a>
+    
+      </nav>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="#">Web App Documentation</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="#objective">Objective</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tech-stack">Technology Stack</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#functionality">Functionality</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#user-docs">User Guide</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Technical Documentation for Web Application</h1>
+
+        <section id="objective" class="mb-5">
+            <h2 class="section-header">1. App Objective</h2>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <p>The primary objective of this web application is to provide users with interactive maps and real-time data visualizations. The platform combines features like weather mapping, geospatial analysis map of school and student location, and real-time flight tracking to offer diverse and useful geographic insights and the heat map showcasing the density of aircrafts. It also includes a home page for general navigation and an "About Us" page to present the application's background and purpose.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech-stack" class="mb-5">
+            <h2 class="section-header">2. Technology Stack</h2>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <ul>
+                        <li><strong>Frontend:</strong>
+                            <ul>
+                                <li>HTML5, CSS3, JavaScript</li>
+                                <li>Bootstrap</li>
+                                <li>Leaflet.js</li>
+                            </ul>
+                        </li>
+                        <li><strong>Backend:</strong>
+                            <ul>
+                                <li>Python Django</li>
+                                
+                            </ul>
+                        </li>
+                        <li><strong>Database:</strong>
+                            <ul>
+                                <li>Postgres</li>
+                                <li>PostGIS</li>
+                            </ul>
+                        </li>
+                        <li><strong>APIs:</strong>
+                            <ul>
+                                <li>OpenWeatherMap API</li>
+                                <li>OpenSkyNetwork API</li>
+                            </ul>
+                        </li>
+                        <li><strong>Geospatial Server:</strong>
+                            <ul>
+                                <li>GeoServer</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="functionality" class="mb-5">
+            <h2 class="section-header">3. Functionality of Each System Component</h2>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <ul>
+                        <li><strong>Home Page:</strong>
+                            <p>Provides a user-friendly interface for navigation to different sections of the app. Features an introduction to the app's purpose and key functionalities.</p>
+                        </li>
+                        <li><strong>About Us Page:</strong>
+                            <p>Details the mission, vision, and team behind the application. Includes contact information and links to external resources or social media.</p>
+                        </li>
+                        <li><strong>Weather Maps:</strong>
+                            <p>Displays real-time weather data using the OpenWeatherMap API. Allows users to input a location to view localized weather conditions.</p>
+                        </li>
+                        <li><strong>Geospatial Analysis Maps:</strong>
+                            <p>Interactive maps displaying the location of students and the schools of butwal area. Users can click the markers on the map to view informations of student and schools.</p>
+                        </li>
+                        <li><strong>Real-Time Flight Map:</strong>
+                            <p>Integrates the OpenSkyNetwork API to provide real-time flight tracking data. Allows users to view destinations and schedules.</p>
+                        </li>
+                        <li><strong>Heat Map:</strong>
+                            <p>Integrates the OpenSkyNetwork API to provide the real-time aircraft density. User can pan and zoom the map for further visualizaiton and understanding.</p>
+
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="user-docs" class="mb-5">
+            <h2 class="section-header">4. User Documentation</h2>
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3>Step-by-Step Guide for Using the App:</h3>
+                    <ol>
+                        <li><strong>Access the Application:</strong> Open a web browser and navigate to the application’s URL.</li>
+                        <li><strong>Home Page Navigation:</strong> Explore the introductory content and navigate to desired sections using the menu.</li>
+                        <li><strong>About Us Page:</strong> Learn about the app’s background and team. Use the provided contact details for inquiries or feedback.</li>
+                        <li><strong>Using the Weather Maps:</strong> Navigate to the Weather Maps section from the menu. Enter a location in the search bar. View real-time weather data, including temperature, wind speed, and humidity.</li>
+                        <li><strong>Geospatial Analysis Map:</strong> Go to the Geospatial Map section. It displays the locaiton of each student and shows popup of the information of student when clicked. It also includes the hospitals of butwal area which also includes the popup feature showing the information of hospitals when clicked. Zoom and pan on the map for detailed exploration.</li>
+                        <li><strong>Tracking Real-Time Flights:</strong> Access the Flight Map section. Search for specific area/Continent or view all flights within a selected region. Click on a flight to view detailed information such as destination and ETA.</li>
+                        <li><strong>Heat Map:</strong> Visualize the aircraft density all over the world. User can pan and zoon to focus on specific areas. </li>
+                        <li><strong>Contacting Support:</strong> Use the "Contact Us" section on the About Us page for assistance.</li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Web Application Documentation. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

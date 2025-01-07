@@ -1,0 +1,101 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* General Reset */
+      * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+      }
+
+      body {
+          font-family: 'Poppins', sans-serif;
+          background: #121212;
+          color: #e1e1e1;
+          line-height: 1.6;
+      }
+
+      /* Navigation Bar */
+      nav {
+          background: #333;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1rem 2rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      }
+
+      nav a {
+          color: #e1e1e1;
+          text-decoration: none;
+          padding: 0.5rem 1rem;
+          font-size: 1rem;
+          font-weight: 600;
+          transition: background 0.3s, color 0.3s;
+      }
+
+      nav a:hover {
+          background: #444;
+          color: #1abc9c;
+          border-radius: 5px;
+      }
+    </style>
+</head>
+
+<body {% if exception_occurred %}
+    style="background-image: url('https://images.pexels.com/photos/3008509/pexels-photo-3008509.jpeg?auto=compress&cs=tinysrgb&w=1600');" 
+  {% else %}
+  style="background-image: url('{{ image_url }}');"
+  {% endif %}>
+  <nav>
+    <a href="{% url 'home' %}">Home</a>
+    <a href="{% url 'aboutus' %}">About</a>
+    <a href="{% url 'leaflet_map' %}">Map</a>
+  </nav>
+  <div class="container">
+    <h1 class="heading">Weather App</h1>
+    
+    <form method="POST">
+      {% csrf_token %}
+      <input type="text" name="city" placeholder="Enter City">
+      <button type="submit" class="btn">Search</button>
+    </form>
+    <div class="weather">
+      <div class="left">
+        <h2 class="temp">{{ temp }}&#176; C</h2>
+        <h2 class="city">{{ city }}</h2>
+      </div>
+      <div class="right">
+        <div class="icon">
+          <p><img src="http://openweathermap.org/img/w/{{ icon }}.png" width="120px"></p>
+        </div>
+        <div class="condition">
+          <p>{{ description }}</p>
+          <p>{{ day }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+{% if exception_occurred %}
+    <script>
+        window.onload = function() {
+            alert("City information is not available to Weather API");
+        }
+    </script>
+{% endif %}
+
+</body>
+</html>

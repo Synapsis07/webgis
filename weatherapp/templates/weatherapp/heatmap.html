@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Traffic Heat Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+  
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #121212;
+            color: #e1e1e1;
+            line-height: 1.6;
+        }
+  
+        /* Navigation Bar */
+        nav {
+            background: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+  
+        nav a {
+            color: #e1e1e1;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s, color 0.3s;
+        }
+  
+        nav a:hover {
+            background: #444;
+            color: #1abc9c;
+            border-radius: 5px;
+        }
+        /* Page Title */
+        .page-title {
+            text-align: center;
+            margin: 20px 0;
+            color: #1abc9c;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'homepage' %}">Home</a>
+        <a href="{% url 'aboutus' %}">About</a>
+        <a href="{% url 'leaflet_map' %}">Geospatial Analysis</a>
+        <a href="{% url 'heatmap' %}">Heat Map</a>
+        <a href="{% url 'flight' %}">Flight Map</a>
+        <a href="{% url 'weather' %}">Weather App</a>
+        <a href="{% url 'docs' %}">Technical Document</a>
+    
+      </nav>
+      <div class="page-title">Density of Airlines</div>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.heat"></script> <!-- Leaflet Heat plugin -->
+    <script>
+        // OpenSky Network credentials
+        const username = "susmeetaa"; // Replace with your username
+        const password = "Aviation@1572"; // Replace with your password
+
+        // Initialize the map
+        const map = L.map('map').setView([20, 0], 2);
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Create a heat layer with a gradient resembling the uploaded image
+        const heat = L.heatLayer([], { 
+            radius: 30,       // Increase radius for larger points
+            blur: 2,         // Increase blur for smoother transitions
+            maxZoom: 12,      // Maximum zoom level for the heatmap
+            gradient: {       // Define the gradient similar to the image
+                0.0: 'blue',      // Low density (less frequent) = Blue
+                0.5: 'orange',    // Mid density = Yellow
+                1.0: 'red'        // High density (more frequent) = Red
+            }
+        }).addTo(map);
+
+        // Fetch live data from OpenSky API
+        async function fetchLiveData() {
+            const url = "https://opensky-network.org/api/states/all";
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        Authorization: `Basic ${btoa(username + ":" + password)}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    plotHeatMap(data.states);
+                } else {
+                    console.error("Error fetching data:", response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        // Plot the heatmap for aircraft density
+        function plotHeatMap(states) {
+            const heatData = [];
+            states.forEach(state => {
+                const [icao24, callsign, , , , longitude, latitude] = state;
+
+                // Check if the latitude and longitude are valid
+                if (latitude && longitude) {
+                    // Add data to the heatmap with intensity (adjust for density visualization)
+                    heatData.push([latitude, longitude, 1.0]); // Intensity set to 1.0
+                }
+            });
+
+            // Update the heatmap with the new data
+            heat.setLatLngs(heatData);
+        }
+
+        // Fetch data every 10 seconds
+        setInterval(fetchLiveData, 10000);
+
+        // Initial fetch
+        fetchLiveData();
+    </script>
+</body>
+</html>

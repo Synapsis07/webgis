@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Air Traffic</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #121212;
+            color: #e1e1e1;
+            line-height: 1.6;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background: black;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        nav a {
+            color: #e1e1e1;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        nav a:hover {
+            background: #444;
+            color: #1abc9c;
+            border-radius: 5px;
+        }
+        /* Page Title */
+        .page-title {
+            text-align: center;
+            margin: 20px 0;
+            color: #1abc9c;
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.4);
+        }
+        /* Search Container */
+        .search-container {
+            position: fixed;
+            bottom: 10px; /* 10px from the bottom of the viewport */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust for centering */
+            z-index: 1000; /* Ensure it stays above other elements */
+            background: white; /* White background for contrast */
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-container input,
+        .search-container button {
+            margin: 5px 0;
+            padding: 5px;
+            width: 100%;
+        }
+        
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'homepage' %}">Home</a>
+        <a href="{% url 'aboutus' %}">About</a>
+        <a href="{% url 'leaflet_map' %}">Geospatial Analysis</a>
+        <a href="{% url 'heatmap' %}">Heat Map</a>
+        <a href="{% url 'flight' %}">Flight Map</a>
+        <a href="{% url 'weather' %}">Weather App</a>
+        <a href="{% url 'docs' %}">Technical Document</a>
+    </nav>
+    <div class="page-title">Current Flight Continent Wise</div>
+    <div id="map"></div>
+    <div class="search-container">
+        <label for="continent-input">Enter Continent:</label><br>
+        <input type="text" id="continent-input" placeholder="e.g., Asia" />
+        <button id="search-btn">Search</button>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        const airplaneIconUrl = "{% static 'plane.png' %}";
+    </script>
+    <script>
+        // OpenSky Network credentials
+        const username = "gp1234"; // Replace with your username
+        const password = "Aviation@1572"; // Replace with your password
+
+        // Initialize the map
+        const map = L.map('map').setView([20, 0], 2); // Initial view of the world
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Define the airplane icon
+        
+        const airplaneIcon = L.icon({
+            iconUrl: airplaneIconUrl, // Relative path to the airplane image
+            iconSize: [15, 15], // Adjust size to fit map appropriately
+            iconAnchor: [10, 10], // Anchor the icon at its center
+            popupAnchor: [0, -15] // Position the popup slightly above the icon
+        });
+
+        // Continent bounds (latitude, longitude)
+        const continentBounds = {
+            Asia: { center: [30, 100], zoom: 4 },
+            Africa: { center: [0, 20], zoom: 4 },
+            Europe: { center: [50, 15], zoom: 4 },
+            NorthAmerica: { center: [40, -100], zoom: 3 },
+            SouthAmerica: { center: [-15, -60], zoom: 4 },
+            Australia: { center: [-25, 133], zoom: 4 },
+            Antarctica: { center: [-75, 0], zoom: 3 }
+        };
+
+        // Fetch live data from OpenSky API
+        async function fetchLiveData(bounds) {
+            const url = "https://opensky-network.org/api/states/all";
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        Authorization: `Basic ${btoa(username + ":" + password)}`
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    plotAircraft(data.states, bounds);
+                } else {
+                    console.error("Error fetching data:", response.status, response.statusText);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+        
+        // Plot aircraft based on continent bounds
+        function plotAircraft(states, bounds) {
+            // Clear existing markers (preserve the tile layer)
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Filter flights within bounds and plot them
+            states.forEach(state => {
+                const [icao24, callsign, , , , longitude, latitude] = state;
+                if (
+                    latitude &&
+                    longitude &&
+                    latitude >= bounds.latMin &&
+                    latitude <= bounds.latMax &&
+                    longitude >= bounds.lonMin &&
+                    longitude <= bounds.lonMax
+                ) {
+                    L.marker([latitude, longitude], { icon: airplaneIcon })
+                        .addTo(map)
+                        .bindPopup(`
+                            <b>Callsign:</b> ${callsign || 'N/A'}<br>
+                            <b>ICAO24:</b> ${icao24 || 'N/A'}<br>
+                            <b>Latitude:</b> ${latitude}<br>
+                            <b>Longitude:</b> ${longitude}
+                        `);
+                }
+            });
+        }
+
+        // Handle the search button click
+         // Handle the search button click
+         document.getElementById('search-btn').addEventListener('click', () => {
+            const input = document.getElementById('continent-input').value.trim();
+            const continent = continentBounds[input];
+            if (continent) {
+                // Zoom to continent
+                map.setView(continent.center, continent.zoom);
+
+                // Define bounds
+                const bounds = {
+                    latMin: continent.center[0] - 30,
+                    latMax: continent.center[0] + 30,
+                    lonMin: continent.center[1] - 60,
+                    lonMax: continent.center[1] + 60
+                };
+
+                // Fetch flights for that region
+                fetchLiveData(bounds);
+            } else {
+                alert('Invalid continent! Please enter a valid continent name (e.g., Asia).');
+            }
+        });
+    </script>
+</body>
+</html>
